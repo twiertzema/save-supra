@@ -8,9 +8,8 @@ through all of the videos in the BVGM playlist. As it is using the official API,
 this is limited by a daily quota of requests. However, the benefit is that the
 data is fairly comprehensive.
 
-**NOTE:** I am prioritizing the "Best VGM" playlist first. If, after getting
-through all of those, I still have some spare quota, I will do a sweep through
-the other playlists on the channel for videos that are unique to those playlists.
+**NOTE:** The BVGM videos are complete. If I have time, I'll try to hit up the
+other playlists for videos that are unique to those.
 
 ## The Data
 ```
