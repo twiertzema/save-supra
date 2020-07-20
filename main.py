@@ -12,28 +12,34 @@ from youtube import YouTube
 ROOT_DIR = os.getcwd()
 
 
-def save_all_playlist_items(youtube: YouTube, playlist_ids: List[str]):
+def save_all_playlist_items(
+    youtube: YouTube, playlist_ids: List[str], dry_run: bool = False
+):
     for pid in playlist_ids:
-        data = youtube.get_pitems_for_pid(pid)
+        if not dry_run:
+            data = youtube.get_pitems_for_pid(pid)
 
-        with open(os.path.join(ROOT_DIR, "playlist_items", f"{pid}.json")) as f:
-            f.write(json.dumps(data))
+            with open(os.path.join(ROOT_DIR, "playlist_items", f"{pid}.json")) as f:
+                f.write(json.dumps(data))
 
         sleep(0.5)
 
 
-def save_all_videos(youtube: YouTube, playlist_item_dict: Dict[str, List]):
+def save_all_videos(
+    youtube: YouTube, playlist_item_dict: Dict[str, List], dry_run: bool = False
+):
     for pid, pitems in playlist_item_dict.items():
-        data = youtube.get_videos_for_pitems(pitems)
+        if not dry_run:
+            data = youtube.get_videos_for_pitems(pitems)
 
-        for video in data:
-            with open(os.path.join(ROOT_DIR, "videos", f"{video['id']}.json")) as f:
-                f.write(json.dumps(video))
+            for video in data:
+                with open(os.path.join(ROOT_DIR, "videos", f"{video['id']}.json")) as f:
+                    f.write(json.dumps(video))
 
         sleep(0.5)
 
 
-def save_all_comment_threads(youtube, da: DataAccess, playlists: List):
+def save_all_comment_threads(youtube, da: DataAccess, playlists: List, dry_run=False):
     for playlist in playlists:
         pid = playlist["id"]
         ptitle = playlist["snippet"]["title"]
@@ -53,12 +59,15 @@ def save_all_comment_threads(youtube, da: DataAccess, playlists: List):
                 print("Skipping...")
                 continue
 
-            threads = youtube.get_comment_threads_for_video(vid)
+            if not dry_run:
+                threads = youtube.get_comment_threads_for_video(vid)
 
-            with open(
-                os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")
-            ) as f:
-                f.write(json.dumps(threads))
+                with open(
+                    os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")
+                ) as f:
+                    f.write(json.dumps(threads))
+            else:
+                print("\t(Dry run)")
 
             print(f'Threads for "{vtitle}" saved.')
 
@@ -96,7 +105,7 @@ def main():
         key=lambda playlist: int(playlist["snippet"]["title"].split(" ").pop())
     )
 
-    save_all_comment_threads(youtube, da, playlists)
+    save_all_comment_threads(youtube, da, playlists, dry_run=True)
 
 
 if __name__ == "__main__":
