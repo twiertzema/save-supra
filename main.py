@@ -6,14 +6,14 @@ import sys
 from time import sleep
 from typing import Dict, List
 
-from data_access import DataAccess, BVGM_PLAYLIST_IDS
+from data_access import DataAccess
 from youtube import YouTube
 
 ROOT_DIR = os.getcwd()
 
 
 def save_all_playlist_items(
-    youtube: YouTube, playlist_ids: List[str], dry_run: bool = False
+    youtube: YouTube, playlist_ids: List[str], dry_run: bool = True
 ):
     for pid in playlist_ids:
         if not dry_run:
@@ -26,7 +26,7 @@ def save_all_playlist_items(
 
 
 def save_all_videos(
-    youtube: YouTube, playlist_item_dict: Dict[str, List], dry_run: bool = False
+    youtube: YouTube, playlist_item_dict: Dict[str, List], dry_run: bool = True
 ):
     for pid, pitems in playlist_item_dict.items():
         if not dry_run:
@@ -39,7 +39,7 @@ def save_all_videos(
         sleep(0.5)
 
 
-def save_threads(youtube, da: DataAccess, from_vid, dry_run=False):
+def save_threads(youtube: YouTube, da: DataAccess, from_vid: str, dry_run: bool = True):
     for video in da.gen_all_videos_in_order(from_vid):
         vid = video["id"]
         vtitle = video["snippet"]["title"]

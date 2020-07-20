@@ -9,7 +9,7 @@ from data_access import DataAccess
 class Export:
     def __init__(self, root_dir: Optional[str] = None):
         self.root_dir = root_dir or os.getcwd()
-        self.export_dir = os.path.join(self.root_dir, "export")
+        self.export_dir = os.path.join(self.root_dir, "exports")
 
     def export_video_ids_tsv(self):
         da = DataAccess()

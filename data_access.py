@@ -131,9 +131,7 @@ class DataAccess:
     def gen_all_videos_in_order(
         self, from_vid: Optional[str] = None
     ) -> Generator[Any, None, None]:
-        ordered_vids = self.__get_json(
-            os.path.join(self.db_dir, "ordered_video_ids.json")
-        )
+        ordered_vids = self.__get_json(os.path.join(self.db_dir, "bvgm_video_ids.json"))
 
         if from_vid:
             from_index = ordered_vids.index(from_vid)
