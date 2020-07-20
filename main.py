@@ -39,49 +39,35 @@ def save_all_videos(
         sleep(0.5)
 
 
-def save_all_comment_threads(youtube, da: DataAccess, playlists: List, dry_run=False):
-    for playlist in playlists:
-        pid = playlist["id"]
-        ptitle = playlist["snippet"]["title"]
+def save_threads(youtube, da: DataAccess, from_vid, dry_run=False):
+    for video in da.gen_all_videos_in_order(from_vid):
+        vid = video["id"]
+        vtitle = video["snippet"]["title"]
 
-        print(f"Processing {ptitle}...")
+        print()
+        print(f"Processing {vtitle}...")
+        if da.have_comments_for_video(vid):
+            print(f'We\'ve already got comments for "{vtitle}".')
+            print("Skipping...")
+            continue
 
-        videos = da.get_videos_for_playlist(pid)
+        if not dry_run:
+            threads = youtube.get_comment_threads_for_video(vid)
 
-        for video in videos:
-            vid = video["id"]
-            vtitle = video["snippet"]["title"]
+            with open(
+                os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")
+            ) as f:
+                f.write(json.dumps(threads))
+        else:
+            print("\t(Dry run)")
 
-            print()
-            print(f"Processing {vtitle}...")
-            if da.have_comments_for_video(vid):
-                print(f'We\'ve already got comments for "{vtitle}".')
-                print("Skipping...")
-                continue
-
-            if not dry_run:
-                threads = youtube.get_comment_threads_for_video(vid)
-
-                with open(
-                    os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")
-                ) as f:
-                    f.write(json.dumps(threads))
-            else:
-                print("\t(Dry run)")
-
-            print(f'Threads for "{vtitle}" saved.')
-
-            # Give a little delay between batches.
-            # - DOS paranoia.
-            sleep(0.5)
-
-        print(f"{ptitle} complete!")
+        print(f'Threads for "{vtitle}" saved.')
         print()
         print("------------------------------------------------------------")
-        print()
 
-        # Nice long delay between playlists.
-        sleep(2.0)
+        # Give a little delay between batches.
+        # - DOS paranoia.
+        sleep(0.5)
 
 
 def main():
@@ -89,7 +75,7 @@ def main():
     # *DO NOT* leave this option enabled in production.
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-    # Get the AIP key as a CLI arg.
+    # Get the API key as a CLI arg.
     api_key = sys.argv[1]
     if not api_key:
         raise Exception("No API key provided.")
@@ -99,13 +85,9 @@ def main():
 
     # Do stuff.
     da = DataAccess()
-    current_playlist = 7
-    playlists = da.get_playlists(BVGM_PLAYLIST_IDS[current_playlist:])
-    playlists.sort(
-        key=lambda playlist: int(playlist["snippet"]["title"].split(" ").pop())
-    )
 
-    save_all_comment_threads(youtube, da, playlists, dry_run=True)
+    current_vid = "pI4lS0lxV18"
+    save_threads(youtube, da, from_vid=current_vid, dry_run=True)
 
 
 if __name__ == "__main__":

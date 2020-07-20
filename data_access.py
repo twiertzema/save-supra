@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 SUPRA_ID = "UC6iBH7Pmiinoe902-JqQ7aQ"
 
@@ -97,24 +97,22 @@ class DataAccess:
     def get_videos_dict(self, playlist_ids: str) -> Dict[str, List]:
         result = {}
         for pid in playlist_ids:
-            videos = self.get_videos_for_playlist(pid)
+            videos = [video for video in self.gen_videos_for_playlist(pid)]
             result[pid] = videos
 
         return result
 
-    def get_videos_for_playlist(self, playlist_id: str) -> List:
+    def gen_videos_for_playlist(self, playlist_id: str) -> Generator[Any, None, None]:
         playlist_items = self.get_playlist_items(playlist_id)
 
-        result = []
         for item in playlist_items:
             vid = item["contentDetails"]["videoId"]
             try:
-                video = self.get_video(vid)
-                result.append(video)
+                yield self.get_video(vid)
             except FileNotFoundError:
                 print(f"Couldn't find video: {vid}")
 
-        return result
+        return None
 
     def get_all_videos(self, sort: bool = False):
         videos = []
@@ -129,6 +127,22 @@ class DataAccess:
             videos.sort(key=lambda item: self.__get_bvgm_number(item))
 
         return videos
+
+    def gen_all_videos_in_order(
+        self, from_vid: Optional[str] = None
+    ) -> Generator[Any, None, None]:
+        ordered_vids = self.__get_json(
+            os.path.join(self.db_dir, "ordered_video_ids.json")
+        )
+
+        if from_vid:
+            from_index = ordered_vids.index(from_vid)
+            ordered_vids = ordered_vids[from_index:]
+
+        for vid in ordered_vids:
+            yield self.__get_json(os.path.join(self.db_dir, "videos", f"{vid}.json"))
+
+        return None
 
     def get_video(self, vid: str):
         return self.__get_json(os.path.join(self.db_dir, "videos", f"{vid}.json"))
