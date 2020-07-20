@@ -5,7 +5,7 @@ import os
 import sys
 from time import sleep
 
-import data_access
+from data_access import DataAccess, BVGM_PLAYLIST_IDS
 from youtube import YouTube
 
 ROOT_DIR = os.getcwd()
@@ -32,14 +32,14 @@ def save_all_videos(youtube, playlist_item_dict):
         sleep(0.5)
 
 
-def save_all_comment_threads(youtube, playlists):
+def save_all_comment_threads(youtube, da, playlists):
     for playlist in playlists:
         pid = playlist["id"]
         ptitle = playlist["snippet"]["title"]
 
         print(f"Processing {ptitle}...")
 
-        videos = data_access.get_videos_for_playlist(pid)
+        videos = da.get_videos_for_playlist(pid)
 
         for video in videos:
             vid = video["id"]
@@ -47,17 +47,19 @@ def save_all_comment_threads(youtube, playlists):
 
             print()
             print(f"Processing {vtitle}...")
-            if data_access.have_comments_for_video(vid):
-                print(f"We've already got comments for \"{vtitle}\".")
+            if da.have_comments_for_video(vid):
+                print(f'We\'ve already got comments for "{vtitle}".')
                 print("Skipping...")
                 continue
 
             threads = youtube.get_comment_threads_for_video(vid)
 
-            with open(os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")) as f:
+            with open(
+                os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")
+            ) as f:
                 f.write(json.dumps(threads))
 
-            print(f"Threads for \"{vtitle}\" saved.")
+            print(f'Threads for "{vtitle}" saved.')
 
             # Give a little delay between batches.
             # - DOS paranoia.
@@ -86,11 +88,14 @@ def main():
     youtube = YouTube(api_key)
 
     # Do stuff.
+    da = DataAccess()
     current_playlist = 7
-    playlists = data_access.get_playlists(data_access.BVGM_PLAYLIST_IDS[current_playlist:])
-    playlists.sort(key=lambda playlist: int(playlist["snippet"]["title"].split(" ").pop()))
+    playlists = da.get_playlists(BVGM_PLAYLIST_IDS[current_playlist:])
+    playlists.sort(
+        key=lambda playlist: int(playlist["snippet"]["title"].split(" ").pop())
+    )
 
-    save_all_comment_threads(youtube, playlists)
+    save_all_comment_threads(youtube, da, playlists)
 
 
 if __name__ == "__main__":

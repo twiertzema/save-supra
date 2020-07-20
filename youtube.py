@@ -54,7 +54,9 @@ def gen_resources_for_ids(res, res_ids, **list_params):
             if len(_res_ids) == 0:
                 break
 
-        print(f"\tRequesting {res_counter}-{res_counter + len(request_ids)} of {total}.")
+        print(
+            f"\tRequesting {res_counter}-{res_counter + len(request_ids)} of {total}."
+        )
 
         list_params["id"] = ",".join(request_ids)
 
@@ -74,7 +76,8 @@ class YouTube:
         api_version = "v3"
 
         self.youtube = googleapiclient.discovery.build(
-            api_service_name, api_version, developerKey=api_key)
+            api_service_name, api_version, developerKey=api_key
+        )
 
     def get_pitems_for_pid(self, pid):
         print(f"Requesting playlist items for {pid}.")
@@ -82,9 +85,8 @@ class YouTube:
         data = []
 
         for items in gen_resources(
-                self.youtube.playlistItems,
-                part="contentDetails",
-                playlistId=pid):
+            self.youtube.playlistItems, part="contentDetails", playlistId=pid
+        ):
             data += items
 
         return data
@@ -96,9 +98,8 @@ class YouTube:
         data = []
 
         for items in gen_resources_for_ids(
-                self.youtube.videos,
-                vids,
-                part="snippet,statistics"):
+            self.youtube.videos, vids, part="snippet,statistics"
+        ):
             data += items
 
         return data
@@ -119,11 +120,12 @@ class YouTube:
         # Get all the threads for the video (paginated).
         threads = []
         for items in gen_resources(
-                self.youtube.commentThreads,
-                part="snippet",
-                videoId=video_id,
-                textFormat="plainText",
-                maxResults=100):  # Allows up to 100 at a time.
+            self.youtube.commentThreads,
+            part="snippet",
+            videoId=video_id,
+            textFormat="plainText",
+            maxResults=100,
+        ):  # Allows up to 100 at a time.
             threads += items
             pass
 
@@ -136,16 +138,15 @@ class YouTube:
                 print(f"\tGetting replies for {thread['id']}")
                 replies = []
                 for items in gen_resources(
-                        self.youtube.comments,
-                        part="snippet",
-                        parentId=top_level_comment["id"],
-                        textFormat="plainText",
-                        maxResults=100):  # Allows up to 100 at a time.
+                    self.youtube.comments,
+                    part="snippet",
+                    parentId=top_level_comment["id"],
+                    textFormat="plainText",
+                    maxResults=100,
+                ):  # Allows up to 100 at a time.
                     replies += items
 
                 # And hydrate the thread with the retrieved comments.
-                thread["replies"] = {
-                    "comments": replies
-                }
+                thread["replies"] = {"comments": replies}
 
         return threads
