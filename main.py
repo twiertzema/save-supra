@@ -4,6 +4,7 @@ import json
 import os
 import sys
 from time import sleep
+from typing import Dict, List
 
 from data_access import DataAccess, BVGM_PLAYLIST_IDS
 from youtube import YouTube
@@ -11,7 +12,7 @@ from youtube import YouTube
 ROOT_DIR = os.getcwd()
 
 
-def save_all_playlist_items(youtube, playlist_ids):
+def save_all_playlist_items(youtube: YouTube, playlist_ids: List[str]):
     for pid in playlist_ids:
         data = youtube.get_pitems_for_pid(pid)
 
@@ -21,7 +22,7 @@ def save_all_playlist_items(youtube, playlist_ids):
         sleep(0.5)
 
 
-def save_all_videos(youtube, playlist_item_dict):
+def save_all_videos(youtube: YouTube, playlist_item_dict: Dict[str, List]):
     for pid, pitems in playlist_item_dict.items():
         data = youtube.get_videos_for_pitems(pitems)
 
@@ -32,7 +33,7 @@ def save_all_videos(youtube, playlist_item_dict):
         sleep(0.5)
 
 
-def save_all_comment_threads(youtube, da, playlists):
+def save_all_comment_threads(youtube, da: DataAccess, playlists: List):
     for playlist in playlists:
         pid = playlist["id"]
         ptitle = playlist["snippet"]["title"]

@@ -2,6 +2,8 @@ import json
 import os
 import re
 
+from typing import Dict, List, NewType, Optional
+
 SUPRA_ID = "UC6iBH7Pmiinoe902-JqQ7aQ"
 
 BVGM_PLAYLIST_IDS = (
@@ -38,12 +40,12 @@ BVGM_NUM_REGEX = re.compile(r"^.*Best VGM (\d+).*")
 
 
 class DataAccess:
-    def __init__(self, root_dir=None):
+    def __init__(self, root_dir: Optional[str] = None):
         self.root_dir = root_dir or os.getcwd()
         self.db_dir = os.path.join(self.root_dir, "db")
 
     @staticmethod
-    def __get_json(abs_file_path):
+    def __get_json(abs_file_path: str):
         with open(abs_file_path, mode="r", encoding="utf-8") as f:
             raw_data = f.read()
             result = json.loads(raw_data)
@@ -55,7 +57,7 @@ class DataAccess:
         title = video["snippet"]["title"]
         return int(re.match(BVGM_NUM_REGEX, title).group(1))
 
-    def get_playlists(self, ids=None):
+    def get_playlists(self, ids: List[str] = None):
         result = []
         for root, dirs, files in os.walk(os.path.join(self.db_dir, "playlists")):
             for filename in files:
@@ -87,12 +89,12 @@ class DataAccess:
 
         return result
 
-    def get_playlist_items(self, playlist_id):
+    def get_playlist_items(self, playlist_id: str):
         return self.__get_json(
             os.path.join(self.db_dir, "playlist_items", f"{playlist_id}.json")
         )
 
-    def get_videos_dict(self, playlist_ids):
+    def get_videos_dict(self, playlist_ids: str):
         result = {}
         for pid in playlist_ids:
             videos = self.get_videos_for_playlist(pid)
@@ -100,7 +102,7 @@ class DataAccess:
 
         return result
 
-    def get_videos_for_playlist(self, playlist_id):
+    def get_videos_for_playlist(self, playlist_id: str):
         playlist_items = self.get_playlist_items(playlist_id)
 
         result = []
@@ -114,7 +116,7 @@ class DataAccess:
 
         return result
 
-    def get_all_videos(self, sort=False):
+    def get_all_videos(self, sort: bool = False):
         for root, dirs, files in os.walk(os.path.join(self.db_dir, "videos")):
             videos = []
 
@@ -127,15 +129,15 @@ class DataAccess:
 
             return videos
 
-    def get_video(self, vid):
+    def get_video(self, vid: str):
         return self.__get_json(os.path.join(self.db_dir, "videos", f"{vid}.json"))
 
-    def get_threads_for_video(self, vid):
+    def get_threads_for_video(self, vid: str):
         return self.__get_json(
             os.path.join(self.db_dir, "commentThreads", f"{vid}.json")
         )
 
-    def have_comments_for_video(self, vid):
+    def have_comments_for_video(self, vid: str):
         return os.path.exists(
             os.path.join(self.db_dir, "commentThreads", f"{vid}.json")
         )

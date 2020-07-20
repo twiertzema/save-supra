@@ -1,10 +1,12 @@
+from typing import Callable, List
+
 import googleapiclient.discovery
 import googleapiclient.errors
 
 DEFAULT_MAX_RESULTS = 50
 
 
-def gen_resources(res, **list_params):
+def gen_resources(resource: Callable, **list_params):
     print("Generating resources.")
     if "maxResults" not in list_params.keys():
         list_params["maxResults"] = DEFAULT_MAX_RESULTS
@@ -14,7 +16,7 @@ def gen_resources(res, **list_params):
         if next_page_token:
             list_params["pageToken"] = next_page_token
 
-        request = res().list(**list_params)
+        request = resource().list(**list_params)
         # print("\t\tRequest made successfully.")
         response = request.execute()
         # print(f"\t\tRaw response: {response}")
@@ -33,7 +35,7 @@ def gen_resources(res, **list_params):
     return None
 
 
-def gen_resources_for_ids(res, res_ids, **list_params):
+def gen_resources_for_ids(res: Callable, res_ids: List[str], **list_params):
     print("Generating resources for ids.")
     total = len(res_ids)
     res_counter = 0
@@ -71,7 +73,7 @@ def gen_resources_for_ids(res, res_ids, **list_params):
 
 
 class YouTube:
-    def __init__(self, api_key):
+    def __init__(self, api_key: str):
         api_service_name = "youtube"
         api_version = "v3"
 
@@ -79,7 +81,7 @@ class YouTube:
             api_service_name, api_version, developerKey=api_key
         )
 
-    def get_pitems_for_pid(self, pid):
+    def get_pitems_for_pid(self, pid: str):
         print(f"Requesting playlist items for {pid}.")
 
         data = []
@@ -91,10 +93,10 @@ class YouTube:
 
         return data
 
-    def get_videos_for_pitems(self, pitems):
+    def get_videos_for_pitems(self, pitems: List):
         print("Requesting videos for playlist items.")
 
-        vids = [pitem["contentDetails"]["videoId"] for pitem in pitems]
+        vids: List[str] = [pitem["contentDetails"]["videoId"] for pitem in pitems]
         data = []
 
         for items in gen_resources_for_ids(
@@ -104,7 +106,7 @@ class YouTube:
 
         return data
 
-    def gen_comment_threads_for_videos(self, videos):
+    def gen_comment_threads_for_videos(self, videos: List):
         print("Requesting comment threads for videos.")
 
         for video in videos:
@@ -114,7 +116,7 @@ class YouTube:
 
         return None
 
-    def get_comment_threads_for_video(self, video_id):
+    def get_comment_threads_for_video(self, video_id: str):
         print(f"Getting threads for {video_id}")
 
         # Get all the threads for the video (paginated).

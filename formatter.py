@@ -1,7 +1,8 @@
 import json
+from typing import Optional
 
 
-def format_comment(comment, indent=0):
+def format_comment(comment, indent: Optional[int] = 0):
     snippet = comment["snippet"]
 
     prefix = "".join([" " for _ in range(indent)])
