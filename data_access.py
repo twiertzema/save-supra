@@ -68,7 +68,7 @@ class DataAccess:
             if ids and pid not in ids:
                 continue
 
-            playlist = self.__get_json(f"{root}\\{filename}")
+            playlist = self.__get_json(os.path.join(root, filename))
             result.append(playlist)
         return result
 
@@ -120,7 +120,7 @@ class DataAccess:
         root, _, files = next(os.walk(os.path.join(self.db_dir, "videos")))
 
         for filename in files:
-            video = self.__get_json(f"{root}\\{filename}")
+            video = self.__get_json(os.path.join(root, filename))
             videos.append(video)
 
         if sort:
