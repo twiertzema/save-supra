@@ -55,7 +55,7 @@ def save_threads(youtube: YouTube, da: DataAccess, from_vid: str, dry_run: bool 
             threads = youtube.get_comment_threads_for_video(vid)
 
             with open(
-                os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json")
+                os.path.join(ROOT_DIR, "db", "commentThreads", f"{vid}.json"), mode="w"
             ) as f:
                 f.write(json.dumps(threads))
         else:
@@ -67,7 +67,7 @@ def save_threads(youtube: YouTube, da: DataAccess, from_vid: str, dry_run: bool 
 
         # Give a little delay between batches.
         # - DOS paranoia.
-        sleep(0.5)
+        sleep(1)
 
 
 def main():
@@ -86,8 +86,8 @@ def main():
     # Do stuff.
     da = DataAccess()
 
-    current_vid = "pI4lS0lxV18"
-    save_threads(youtube, da, from_vid=current_vid, dry_run=True)
+    # current_vid = "lM28rfsHge0"
+    # save_threads(youtube, da, from_vid=current_vid, dry_run=False)
 
 
 if __name__ == "__main__":
