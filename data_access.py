@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-from typing import Dict, List, NewType, Optional
+from typing import Any, Dict, List, Optional
 
 SUPRA_ID = "UC6iBH7Pmiinoe902-JqQ7aQ"
 
@@ -45,7 +45,7 @@ class DataAccess:
         self.db_dir = os.path.join(self.root_dir, "db")
 
     @staticmethod
-    def __get_json(abs_file_path: str):
+    def __get_json(abs_file_path: str) -> Any:
         with open(abs_file_path, mode="r", encoding="utf-8") as f:
             raw_data = f.read()
             result = json.loads(raw_data)
@@ -53,48 +53,48 @@ class DataAccess:
         return result
 
     @staticmethod
-    def __get_bvgm_number(video):
+    def __get_bvgm_number(video) -> int:
         title = video["snippet"]["title"]
         return int(re.match(BVGM_NUM_REGEX, title).group(1))
 
-    def get_playlists(self, ids: List[str] = None):
+    def get_playlists(self, ids: List[str] = None) -> List:
+        root, _, files = next(os.walk(os.path.join(self.db_dir, "playlists")))
+
         result = []
-        for root, dirs, files in os.walk(os.path.join(self.db_dir, "playlists")):
-            for filename in files:
-                pid = filename.split(".")[0]
+        for filename in files:
+            pid = filename.split(".")[0]
 
-                # Skip if not in the desired set.
-                if ids and pid not in ids:
-                    continue
+            # Skip if not in the desired set.
+            if ids and pid not in ids:
+                continue
 
-                playlist = self.__get_json(f"{root}\\{filename}")
-                result.append(playlist)
+            playlist = self.__get_json(f"{root}\\{filename}")
+            result.append(playlist)
         return result
 
-    def get_pitems_dict(self):
-        pitems_ids = []
-        for root, dirs, files in os.walk(os.path.join(self.db_dir, "playlist_items")):
-            pitems_ids = [filename.split(".")[0] for filename in files]
+    def get_pitems_dict(self) -> Dict[str, Any]:
+        _, _, files = next(os.walk(os.path.join(self.db_dir, "playlist_items")))
+        pitems_ids = [filename.split(".")[0] for filename in files]
 
         result = {}
-        for root, dirs, files in os.walk(os.path.join(self.db_dir, "playlists")):
-            for filename in files:
-                playlist_id = filename.split(".")[0]
+        _, _, files = next(os.walk(os.path.join(self.db_dir, "playlists")))
+        for filename in files:
+            playlist_id = filename.split(".")[0]
 
-                if playlist_id not in pitems_ids:
-                    # Don't have playlist items for this playlist.
-                    continue
+            if playlist_id not in pitems_ids:
+                # Don't have playlist items for this playlist.
+                continue
 
-                result[playlist_id] = self.get_playlist_items(playlist_id)
+            result[playlist_id] = self.get_playlist_items(playlist_id)
 
         return result
 
-    def get_playlist_items(self, playlist_id: str):
+    def get_playlist_items(self, playlist_id: str) -> List:
         return self.__get_json(
             os.path.join(self.db_dir, "playlist_items", f"{playlist_id}.json")
         )
 
-    def get_videos_dict(self, playlist_ids: str):
+    def get_videos_dict(self, playlist_ids: str) -> Dict[str, List]:
         result = {}
         for pid in playlist_ids:
             videos = self.get_videos_for_playlist(pid)
@@ -102,7 +102,7 @@ class DataAccess:
 
         return result
 
-    def get_videos_for_playlist(self, playlist_id: str):
+    def get_videos_for_playlist(self, playlist_id: str) -> List:
         playlist_items = self.get_playlist_items(playlist_id)
 
         result = []
@@ -117,17 +117,18 @@ class DataAccess:
         return result
 
     def get_all_videos(self, sort: bool = False):
-        for root, dirs, files in os.walk(os.path.join(self.db_dir, "videos")):
-            videos = []
+        videos = []
 
-            for filename in files:
-                video = self.__get_json(f"{root}\\{filename}")
-                videos.append(video)
+        root, _, files = next(os.walk(os.path.join(self.db_dir, "videos")))
 
-            if sort:
-                videos.sort(key=lambda item: self.__get_bvgm_number(item))
+        for filename in files:
+            video = self.__get_json(f"{root}\\{filename}")
+            videos.append(video)
 
-            return videos
+        if sort:
+            videos.sort(key=lambda item: self.__get_bvgm_number(item))
+
+        return videos
 
     def get_video(self, vid: str):
         return self.__get_json(os.path.join(self.db_dir, "videos", f"{vid}.json"))

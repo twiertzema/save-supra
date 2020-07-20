@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import Callable, Generator, List
 
 import googleapiclient.discovery
 import googleapiclient.errors
@@ -6,7 +6,14 @@ import googleapiclient.errors
 DEFAULT_MAX_RESULTS = 50
 
 
-def gen_resources(resource: Callable, **list_params):
+def gen_resources(resource: Callable, **list_params) -> Generator[List, None, None]:
+    """
+    Paginates through all the data relevant to `resource`, yielding each set
+    as it comes back.
+    :param resource: The YouTube Data API resource function (ie: youtube.videos).
+    :param list_params: Parameters to pass to the `list` call on `resource`.
+    :return: Generator.
+    """
     print("Generating resources.")
     if "maxResults" not in list_params.keys():
         list_params["maxResults"] = DEFAULT_MAX_RESULTS
@@ -35,7 +42,16 @@ def gen_resources(resource: Callable, **list_params):
     return None
 
 
-def gen_resources_for_ids(res: Callable, res_ids: List[str], **list_params):
+def gen_resources_for_ids(
+    resource: Callable, res_ids: List[str], **list_params
+) -> Generator[List, None, None]:
+    """
+    Makes requests to retrieve all resources for `res_ids`, yielding each batch.
+    :param resource: The YouTube Data API resource function (ie: youtube.videos).
+    :param res_ids:
+    :param list_params: Parameters to pass to the `list` call on `resource`.
+    :return: Generator
+    """
     print("Generating resources for ids.")
     total = len(res_ids)
     res_counter = 0
@@ -62,7 +78,7 @@ def gen_resources_for_ids(res: Callable, res_ids: List[str], **list_params):
 
         list_params["id"] = ",".join(request_ids)
 
-        request = res().list(**list_params)
+        request = resource().list(**list_params)
         response = request.execute()
         yield response["items"]
 
@@ -81,7 +97,7 @@ class YouTube:
             api_service_name, api_version, developerKey=api_key
         )
 
-    def get_pitems_for_pid(self, pid: str):
+    def get_pitems_for_pid(self, pid: str) -> List:
         print(f"Requesting playlist items for {pid}.")
 
         data = []
@@ -93,7 +109,7 @@ class YouTube:
 
         return data
 
-    def get_videos_for_pitems(self, pitems: List):
+    def get_videos_for_pitems(self, pitems: List) -> List:
         print("Requesting videos for playlist items.")
 
         vids: List[str] = [pitem["contentDetails"]["videoId"] for pitem in pitems]
@@ -106,7 +122,14 @@ class YouTube:
 
         return data
 
-    def gen_comment_threads_for_videos(self, videos: List):
+    def gen_comment_threads_for_videos(
+        self, videos: List
+    ) -> Generator[List, None, None]:
+        """
+        Generates `commentThreads` for the `videos`, yielding on every video.
+        :param videos:
+        :return: Generator
+        """
         print("Requesting comment threads for videos.")
 
         for video in videos:
@@ -116,7 +139,7 @@ class YouTube:
 
         return None
 
-    def get_comment_threads_for_video(self, video_id: str):
+    def get_comment_threads_for_video(self, video_id: str) -> List:
         print(f"Getting threads for {video_id}")
 
         # Get all the threads for the video (paginated).

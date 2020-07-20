@@ -2,7 +2,7 @@ import json
 from typing import Optional
 
 
-def format_comment(comment, indent: Optional[int] = 0):
+def format_comment(comment, indent: Optional[int] = 0) -> str:
     snippet = comment["snippet"]
 
     prefix = "".join([" " for _ in range(indent)])
@@ -18,7 +18,7 @@ def format_comment(comment, indent: Optional[int] = 0):
     return f"{prefix}{author}: {indented_text}"
 
 
-def format_thread(thread):
+def format_thread(thread) -> str:
     result = ""
 
     thread_snippet = thread["snippet"]
