@@ -1,7 +1,9 @@
-from typing import Callable, Generator, List
+from typing import Callable, Generator, List, Optional
 
 import googleapiclient.discovery
 import googleapiclient.errors
+
+from data_access import DataAccess
 
 DEFAULT_MAX_RESULTS = 50
 
@@ -115,8 +117,12 @@ class YouTube:
         vids: List[str] = [pitem["contentDetails"]["videoId"] for pitem in pitems]
         data = []
 
+        # Filter out videos we already have.
+        da = DataAccess()
+        vids = [vid for vid in vids if not da.have_video(vid)]
+
         for items in gen_resources_for_ids(
-            self.youtube.videos, vids, part="snippet,statistics"
+            self.youtube.videos, vids, part="snippet,statistics",
         ):
             data += items
 

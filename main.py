@@ -6,7 +6,7 @@ import sys
 from time import sleep
 from typing import Dict, List
 
-from data_access import DataAccess
+from data_access import DataAccess, OTHER_PLAYLIST_IDS
 from youtube import YouTube
 
 ROOT_DIR = os.getcwd()
@@ -16,25 +16,38 @@ def save_all_playlist_items(
     youtube: YouTube, playlist_ids: List[str], dry_run: bool = True
 ):
     for pid in playlist_ids:
+        print(f"Fetching {pid}")
         if not dry_run:
             data = youtube.get_pitems_for_pid(pid)
 
-            with open(os.path.join(ROOT_DIR, "playlist_items", f"{pid}.json")) as f:
+            with open(
+                os.path.join(ROOT_DIR, "db", "playlist_items", f"{pid}.json"), mode="w"
+            ) as f:
                 f.write(json.dumps(data))
+        else:
+            print("\t(Dry run)")
+        print("Done.")
 
         sleep(0.5)
 
 
 def save_all_videos(
-    youtube: YouTube, playlist_item_dict: Dict[str, List], dry_run: bool = True
+    youtube: YouTube, playlist_item_dict: Dict[str, List], dry_run: bool = True,
 ):
     for pid, pitems in playlist_item_dict.items():
+        print(f"Fetching videos for {pid}")
         if not dry_run:
             data = youtube.get_videos_for_pitems(pitems)
 
             for video in data:
-                with open(os.path.join(ROOT_DIR, "videos", f"{video['id']}.json")) as f:
+                with open(
+                    os.path.join(ROOT_DIR, "db", "videos", f"{video['id']}.json"),
+                    mode="w",
+                ) as f:
                     f.write(json.dumps(video))
+        else:
+            print("\t(Dry run)")
+        print("Done.")
 
         sleep(0.5)
 
@@ -86,8 +99,12 @@ def main():
     # Do stuff.
     da = DataAccess()
 
-    # current_vid = "lM28rfsHge0"
+    pitems_dict = da.get_pitems_dict(OTHER_PLAYLIST_IDS)
+
+    current_vid = "lM28rfsHge0"
     # save_threads(youtube, da, from_vid=current_vid, dry_run=False)
+    # save_all_playlist_items(youtube, OTHER_PLAYLIST_IDS, dry_run=False)
+    save_all_videos(youtube, pitems_dict, dry_run=False)
 
 
 if __name__ == "__main__":

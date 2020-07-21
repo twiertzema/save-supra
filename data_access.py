@@ -72,15 +72,17 @@ class DataAccess:
             result.append(playlist)
         return result
 
-    def get_pitems_dict(self) -> Dict[str, Any]:
+    def get_pitems_dict(
+        self, playlist_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
         _, _, files = next(os.walk(os.path.join(self.db_dir, "playlist_items")))
         pitems_ids = [filename.split(".")[0] for filename in files]
 
         result = {}
-        _, _, files = next(os.walk(os.path.join(self.db_dir, "playlists")))
-        for filename in files:
-            playlist_id = filename.split(".")[0]
-
+        if not playlist_ids:
+            _, _, files = next(os.walk(os.path.join(self.db_dir, "playlists")))
+            playlist_ids = [filename.split(".")[0] for filename in files]
+        for playlist_id in playlist_ids:
             if playlist_id not in pitems_ids:
                 # Don't have playlist items for this playlist.
                 continue
@@ -149,6 +151,9 @@ class DataAccess:
         return self.__get_json(
             os.path.join(self.db_dir, "commentThreads", f"{vid}.json")
         )
+
+    def have_video(self, vid: str):
+        return os.path.exists(os.path.join(self.db_dir, "videos", f"{vid}.json"))
 
     def have_comments_for_video(self, vid: str):
         return os.path.exists(
