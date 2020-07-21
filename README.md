@@ -8,8 +8,10 @@ through all of the videos in the BVGM playlist. As it is using the official API,
 this is limited by a daily quota of requests. However, the benefit is that the
 data is fairly comprehensive.
 
-**NOTE:** The BVGM videos are complete. If I have time, I'll try to hit up the
-other playlists for videos that are unique to those.
+**NOTE:** The BVGM videos are complete. There is data on some of the videos
+unique to the other playlists, but no comments for those yet. If I can get a
+little more data quota before the channel is taken down, I'll continue to scoop
+up as much as I can.
 
 ## The Data
 ```
