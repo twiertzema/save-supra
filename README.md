@@ -25,11 +25,11 @@ are not included.
 The following table should help illustrate when the data was collected to give
 you an idea of how current the respective comment data.
 
-| BVGM Range  | Date       |
-|:-----------:|------------|
-| 1 - ~450    | 2020-07-19 |
-| ~450 - 1497 | 2020-07-20 |
-| 1497 - end  | 2020-07-21 |
+| BVGM Range  | Date Collected |
+|:-----------:|:--------------:|
+| 1 - ~450    | 2020-07-19     |
+| ~450 - 1497 | 2020-07-20     |
+| 1497 - end  | 2020-07-21     |
 
 ## The Data
 ```
