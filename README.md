@@ -1,31 +1,29 @@
 # `save-supra`
-A hodgepodge Python command-line application that uses the [YouTube Data API](https://developers.google.com/youtube/v3/docs)
-to archive (primarily) comment data from SupraDarky's soon-to-be-terminated
-"Best Video Game Music" YouTube channel.
+A hodgepodge Python command-line application that used the [YouTube Data API](https://developers.google.com/youtube/v3/docs)
+to archive video information and  comment data from SupraDarky's old "Best Video
+Game Music" YouTube channel.
 
-In its current incarnation, the primary logic is focused around simply working
-through all of the videos in the BVGM playlist. As it is using the official API,
-this is limited by a daily quota of requests. However, the benefit is that the
-data is fairly comprehensive.
+The primary logic was focused around simply working through all of the videos in
+the BVGM playlist. Since it used the official API, this was limited by a daily
+quota of requests. However, the benefit was that the data was fairly comprehensive.
 
 Unfortunately, this does not include the video and comment information for videos
-that had to marked as private (or the ones that were de-listed). As such, there
-are some small holes in the BVGM sequence.
+that had to be marked as private (or the ones that were de-listed). As such,
+there are some small holes in the BVGM sequence.
 
-**NOTE:** The BVGM videos are complete. There is data on some of the videos
-unique to the other playlists, but no comments for those yet. If I can get a
-little more data quota before the channel is taken down, I'll continue to scoop
-up as much as I can.
+**NOTE:** The data for the BVGM playlist is complete, but there is no comment
+data for the videos in the other playlists from the channel; I ran out of quota
+before I was able to get those.
 
 ## The Data
 ```
 db/  <- Archived data (JSON)
-  commentThreads/      <- Comprehensive comment threads for every video.
+  commentThreads/      <- Comprehensive comment threads for every BVGM video.
   playlist_items/      <- Data tying playlists and videos together.
   playlists/           <- Information on the all the channels' playlists.
-  videos/              <- Information on all the videos.
+  videos/              <- Information on all the BVGM videos (and a few more).
   bvgm_video_ids.json  <- All video IDs conveniently ordered from BVGM.
   channel.json         <- Basic channel information.
 
-exports/  <- Dumping ground for nicely formatted stuff.
+exports/  <- Dumping ground for nicely formatted stuff. Not much of use now.
 ```
